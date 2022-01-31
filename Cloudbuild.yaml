@@ -31,7 +31,7 @@ substitutions:
     #Repository Specific configuration. DevOps can change this settings
     _DEPLOYMENTNAME: nginx-deployment
     _CONTAINERNAME: nginx    
-    _REPO_NAME: cicd-demo
+    _REPO_NAME: gke
     
     # Developers ONLY change
     _VERSION: v1.0
