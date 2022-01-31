@@ -1,7 +1,7 @@
 steps:
 #First Clone from Google Cloud Source Repository  
-- name: 'gcr.io/cloud-builders/git'
-  args: ['clone','https://source.developers.google.com/p/${_PROJECT}/r/${_REPO_NAME}']
+#- name: 'gcr.io/cloud-builders/git'
+ # args: ['clone','https://source.developers.google.com/p/${_PROJECT}/r/${_REPO_NAME}']
 
 #Build the image 
 - name: 'gcr.io/cloud-builders/docker'
@@ -31,7 +31,7 @@ substitutions:
     #Repository Specific configuration. DevOps can change this settings
     _DEPLOYMENTNAME: nginx-deployment
     _CONTAINERNAME: nginx    
-    _REPO_NAME: gke
+  #  _REPO_NAME: gke
     
     # Developers ONLY change
     _VERSION: v1.0
