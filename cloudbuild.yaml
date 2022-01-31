@@ -26,7 +26,7 @@ substitutions:
     #GCP Specific configuration. Please DON'T change anything
     _PROJECT: learn
     _ZONE: us-central1-a
-    _GKE_CLUSTER: gkr-cluster-demo
+    _GKE_CLUSTER: gke-cluster-demo
     
     #Repository Specific configuration. DevOps can change this settings
     _DEPLOYMENTNAME: nginx-deployment
