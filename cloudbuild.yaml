@@ -27,7 +27,7 @@ steps:
   
 #Update the container image using kubectl set
 - name: 'gcr.io/cloud-builders/kubectl'
-  args: ['apply', '-f', 'gcr.io/learn-339213/gke']
+  args: ['apply', '-f', 'nginx']
   - 'set'
   - 'image'
   - 'deployment/${_DEPLOYMENTNAME}'
