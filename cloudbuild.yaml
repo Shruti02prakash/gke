@@ -32,8 +32,6 @@ steps:
   - 'image'
   - 'deployment/${_DEPLOYMENTNAME}'
   - '${_CONTAINERNAME}=gcr.io/${_PROJECT}/${_CONTAINERNAME}:$SHORT_SHA'
-  - 'nginx'
-   -'nginx=gcr.io/$PROJECT_ID/nginx:$TAG_NAME'
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
   - 'CLOUDSDK_CONTAINER_CLUSTER=${_GKE_CLUSTER}'
