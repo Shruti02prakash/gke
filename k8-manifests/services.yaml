@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: mdev
+  labels:
+    app: nginx-1
+spec:
+  selector:
+    matchLabels:
+      app: nginx-1
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-1
+    spec:
+      containers:
+        - name: nginx
+          image: 'gcr.io/learn-339213/nginx:latest'
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: '500Mi'
+              cpu: '200m'
+            limits:
+              memory: '1000Mi'
+              cpu: '500m'
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: mdev
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx-1
+  ports:
+    - port: 80
+      targetPort: 80
