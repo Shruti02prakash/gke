@@ -41,7 +41,7 @@ metadata:
   name: nginx
   namespace: mdev
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: nginx-1
   ports:
