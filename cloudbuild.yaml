@@ -1,7 +1,4 @@
 steps:
-#First Clone from Google Cloud Source Repository  
-#- name: 'gcr.io/cloud-builders/git'
- # args: ['clone','https://source.developers.google.com/p/${_PROJECT}/r/${_REPO_NAME}']
 - name: 'gcr.io/cloud-builders/docker'
   id: Build docker image
   args: ['build', '--tag=${_GCR_DOCKER_IMAGE_PATH}:$SHORT_SHA', '--tag=${_GCR_DOCKER_IMAGE_PATH}:latest', '.']
@@ -15,40 +12,40 @@ steps:
   id: Push docker image with latest tag
   args: ['push', '${_GCR_DOCKER_IMAGE_PATH}:latest']
 
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Connecting to GKE cluster
+  args: ['container', 'clusters', 'get-credentials', '${_KUBERNETES_CLUSTER_NAME}', '--zone', '${_KUBERNETES_CLUSTER_LOCATION}', '--project', '${_PROJECT_ID}']
 
-
-#Build the image 
-#- name: 'gcr.io/cloud-builders/docker'
- # args: ['build','-t','gcr.io/${_PROJECT}/${_CONTAINERNAME}:${_VERSION}','.']
-
-#Push the image  
-#- name: 'gcr.io/cloud-builders/docker'
- # args: ['push','gcr.io/${_PROJECT}/${_CONTAINERNAME}:${_VERSION}']
-  
-#Update the container image using kubectl set
 - name: 'gcr.io/cloud-builders/kubectl'
-  id: Deploy
-  args: ['apply', '-f', 'k8s/']
-  - 'set'
-  - 'image'
-  - 'deployment/${_DEPLOYMENTNAME}'
-  - '${_CONTAINERNAME}=gcr.io/${_PROJECT}/${_CONTAINERNAME}:$SHORT_SHA'
+  id: Creating/Updating deployement, services
+  args: ['apply','-f','k8-manifests/services.yaml']
   env:
-  - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
-  - 'CLOUDSDK_CONTAINER_CLUSTER=${_GKE_CLUSTER}'
+  - 'CLOUDSDK_COMPUTE_ZONE=${_KUBERNETES_CLUSTER_LOCATION}'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=${_KUBERNETES_CLUSTER_NAME}'
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  id: Update image of kubernetes deployment
+  args: ['set','--namespace', '${_KUBERNETES_NAMESPACE_NAME}', 'image', 'deployment/${_KUBERNETES_DEPLOYMENT_NAME}', '${_KUBERNETES_CONTAINER_NAME}=${_GCR_DOCKER_IMAGE_PATH}:$SHORT_SHA']
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=${_KUBERNETES_CLUSTER_LOCATION}'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=${_KUBERNETES_CLUSTER_NAME}'
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  id: Check rollout status of kubernetes deployment
+  args: ['rollout','--namespace', '${_KUBERNETES_NAMESPACE_NAME}', 'status', 'deployment/${_KUBERNETES_DEPLOYMENT_NAME}']
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=${_KUBERNETES_CLUSTER_LOCATION}'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=${_KUBERNETES_CLUSTER_NAME}'
   
 substitutions:
-    #GCP Specific configuration. Please DON'T change anything
-    _PROJECT: learn
-    _ZONE: us-central1-a
-    _GKE_CLUSTER: gke-cluster-demo
-    _GCR_DOCKER_IMAGE_PATH: gcr.io/learn-339213/gke
-    
-    #Repository Specific configuration. DevOps can change this settings
-    _DEPLOYMENTNAME: nginx-deployment
-    _CONTAINERNAME: nginx    
-  #  _REPO_NAME: gke
-    
+    _PROJECT_ID: learn-339213
+    _KUBERNETES_CLUSTER_LOCATION: us-central1-a
+    _KUBERNETES_CLUSTER_NAME: gke-cluster-demo
+    _KUBERNETES_DEPLOYMENT_NAME: nginx
+    _KUBERNETES_CONTAINER_NAME: nginx
+    _KUBERNETES_NAMESPACE_NAME: mdev 
+    _GCR_DOCKER_IMAGE_PATH: gcr.io/learn-339213/nginx
     
 options:
     substitution_option: 'ALLOW_LOOSE'
+timeout: 900s
